@@ -1,0 +1,35 @@
+name: Check YouTube video privacy status
+
+on:
+  schedule:
+    # 毎時0分に実行（1時間ごとにチェック）。頻度を変えたい場合はここを編集。
+    # 例: 30分ごとにしたい場合は "*/30 * * * *"
+    - cron: "0 * * * *"
+  workflow_dispatch: {}  # Actionsタブから手動実行も可能にする
+
+jobs:
+  check-and-restore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run check
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_CHANNEL_ID: ${{ secrets.YOUTUBE_CHANNEL_ID }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          NOTIFY_TO_EMAIL: ${{ secrets.NOTIFY_TO_EMAIL }}
+          EXCLUDE_VIDEO_IDS: ${{ secrets.EXCLUDE_VIDEO_IDS }}
+        run: python check_and_restore.py
